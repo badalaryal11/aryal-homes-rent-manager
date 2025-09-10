@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aryal Homes - Rent Management</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; background-color: #f4f4f9; }
+        h1, h2 { color: #333; text-align: center; }
+        .container { max-width: 900px; margin: auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+        form { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 30px; }
+        label { font-weight: bold; }
+        input { width: 100%; padding: 8px; box-sizing: border-box; border: 1px solid #ccc; border-radius: 4px; }
+        button { grid-column: span 2; padding: 10px; background-color: #007BFF; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 16px; }
+        button:hover { background-color: #0056b3; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+        th { background-color: #f2f2f2; }
+        tr:nth-child(even) { background-color: #f9f9f9; }
+        a { color: #007BFF; text-decoration: none; }
+        a:hover { text-decoration: underline; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Aryal Homes Rent Management</h1>
+
+        <h2>Add New Entry</h2>
+        <form action="/" method="POST">
+            <div>
+                <label for="tenant_name">Tenant Name:</label>
+                <input type="text" id="tenant_name" name="tenant_name" required>
+            </div>
+             <div>
+                <label for="entry_date">Date:</label>
+                <input type="date" id="entry_date" name="entry_date" required>
+            </div>
+            <div>
+                <label for="rent">Rent:</label>
+                <input type="number" id="rent" name="rent" step="0.01" placeholder="0.00">
+            </div>
+            <div>
+                <label for="water">Water:</label>
+                <input type="number" id="water" name="water" step="0.01" placeholder="0.00">
+            </div>
+            <div>
+                <label for="waste">Waste:</label>
+                <input type="number" id="waste" name="waste" step="0.01" placeholder="0.00">
+            </div>
+            <div>
+                <label for="electricity">Electricity:</label>
+                <input type="number" id="electricity" name="electricity" step="0.01" placeholder="0.00">
+            </div>
+            <div>
+                <label for="repair">Repair:</label>
+                <input type="number" id="repair" name="repair" step="0.01" placeholder="0.00">
+            </div>
+            <div>
+                <label for="misc">Miscellaneous:</label>
+                <input type="number" id="misc" name="misc" step="0.01" placeholder="0.00">
+            </div>
+            <button type="submit">Add Entry</button>
+        </form>
+
+        <h2>Existing Entries</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Tenant</th>
+                    <th>Total</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for entry in entries %}
+                <tr>
+                    <td>{{ entry.entry_date.strftime('%Y-%m-%d') }}</td>
+                    <td>{{ entry.tenant_name }}</td>
+                    <td>{{ "%.2f"|format(entry.total) }}</td>
+                    <td>
+                        <a href="{{ url_for('generate_pdf', entry_id=entry.id) }}">Generate PDF</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</body>
+</html>
