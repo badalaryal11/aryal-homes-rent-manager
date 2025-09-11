@@ -1,10 +1,12 @@
 # app.py
 import os
-from flask import Flask, render_template, request, redirect, url_for, Response
+# from flask import Flask, render_template, request, redirect, url_for, Response
+from flask import Flask, render_template, request, send_file, redirect, url_for, Response, make_response
+from flask import make_response
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
 from fpdf import FPDF
-
+import io
 # --- App and Database Configuration ---
 app = Flask(__name__)
 # Defines the path for the SQLite database file
@@ -81,22 +83,20 @@ def index():
     all_entries = RentEntry.query.order_by(RentEntry.entry_date.desc()).all()
     return render_template('index.html', entries=all_entries)
 
+
 @app.route('/generate_pdf/<int:entry_id>')
 def generate_pdf(entry_id):
     # Find the specific entry in the database
     entry = RentEntry.query.get_or_404(entry_id)
 
-    # Create PDF object
+    # Create PDF object and add all content
     pdf = PDF()
     pdf.add_page()
     pdf.set_font('Arial', '', 12)
-
-    # Add content to the PDF
     pdf.cell(0, 10, f'Tenant Name: {entry.tenant_name}', 0, 1)
     pdf.cell(0, 10, f'Date: {entry.entry_date.strftime("%B %d, %Y")}', 0, 1)
     pdf.ln(5)
 
-    # Table for charges
     pdf.set_font('Arial', 'B', 12)
     pdf.cell(95, 10, 'Category', 1, 0, 'C')
     pdf.cell(95, 10, 'Amount (NPR)', 1, 1, 'C')
@@ -110,20 +110,46 @@ def generate_pdf(entry_id):
         'Repair Costs': entry.repair,
         'Miscellaneous': entry.misc
     }
-
     for category, amount in charges.items():
         pdf.cell(95, 10, f'  {category}', 1, 0)
         pdf.cell(95, 10, f'  {amount:,.2f}', 1, 1)
 
-    # Total
     pdf.set_font('Arial', 'B', 12)
     pdf.cell(95, 10, '  Total Amount', 1, 0)
     pdf.cell(95, 10, f'  {entry.total:,.2f}', 1, 1)
 
-    # Return the PDF as a response to the browser
-    return Response(pdf.output(dest='S').encode('latin-1'),
-                    mimetype='application/pdf',
-                    headers={'Content-Disposition': f'attachment;filename=invoice_{entry.tenant_name}_{entry.entry_date}.pdf'})
+    # --- THE send_file APPROACH ---
+    try:
+        # Create a BytesIO buffer to store the PDF output
+        buffer = io.BytesIO()
+        # Output PDF content to the buffer.
+        # Use default output() which returns to dest if specified, or to 'S' (string/bytes)
+        # Some fpdf2 versions are picky, so specifying dest=buffer is crucial.
+        pdf.output(dest=buffer)
+        buffer.seek(0) # Go back to the start of the buffer
+
+        # Generate a dynamic filename
+        filename = f'invoice_{entry.tenant_name}_{entry.entry_date}.pdf'
+
+        # Use send_file to return the buffer as a downloadable file
+        return send_file(
+            buffer,
+            mimetype='application/pdf',
+            as_attachment=True,
+            download_name=filename # Use download_name for modern Flask versions
+        )
+
+    except Exception as e:
+        app.logger.error(f"Error generating PDF for entry {entry_id}: {e}")
+        return f"An error occurred while generating the PDF: {e}", 500
+
+
+@app.route('/delete/<int:entry_id>', methods=['POST'])
+def delete_entry(entry_id):
+    entry_to_delete = RentEntry.query.get_or_404(entry_id)
+    db.session.delete(entry_to_delete)
+    db.session.commit()
+    return redirect(url_for('index'))
 
 
 # This part runs the app
@@ -132,3 +158,19 @@ if __name__ == '__main__':
         # This will create the database file and table if they don't exist
         db.create_all()
     app.run(debug=True) # debug=True allows you to see errors and auto-reloads the server
+
+# --- IGNORE ---
+# --- FINAL, ROBUST METHod-
+
+    # 1. Generate the PDF output as bytes. 
+    #    The output() method already returns a bytes-like object.
+    #pdf_output = pdf.output()
+    
+    # 2. Use make_response to create a response object from the bytes.
+    #response = make_response(pdf_output)
+    
+    # 3. Set the appropriate headers to tell the browser it's a downloadable PDF.
+   # response.headers['Content-Type'] = 'application/pdf'
+    #response.headers['Content-Disposition'] = f'attachment;filename=invoice_{entry.tenant_name}_{entry.entry_date}.pdf'
+    
+    #return response
