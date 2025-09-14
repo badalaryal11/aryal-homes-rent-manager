@@ -7,6 +7,7 @@ from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
 from fpdf import FPDF
 import io
+
 # --- App and Database Configuration ---
 app = Flask(__name__)
 # Defines the path for the SQLite database file
@@ -84,65 +85,115 @@ def index():
     return render_template('index.html', entries=all_entries)
 
 
+# In app.py
+
+# ... (keep all your other imports and code) ...
+
+# In app.py
+
+# ... (keep all your other imports and code) ...
+
+# In app.py
+
+# Ensure you have 'send_file' imported, and 'io' is no longer needed if you remove it from the imports.
+
+# ... (rest of your app.py, including app config, RentEntry model, PDF class, and index route) ...
+
+
+# In app.py
+
+
+
+# ... (rest of your app.py, including app config, RentEntry model, PDF class, and index route) ...
+
+
 @app.route('/generate_pdf/<int:entry_id>')
 def generate_pdf(entry_id):
     # Find the specific entry in the database
     entry = RentEntry.query.get_or_404(entry_id)
 
-    # Create PDF object and add all content
     pdf = PDF()
-    pdf.add_page()
-    pdf.set_font('Arial', '', 12)
+    
+    # Add the Unicode font and set it for different styles
+    try:
+        if not os.path.exists("DejaVuSans.ttf"):
+            # Provide a more specific error for the log and return, but try to proceed with Arial
+            app.logger.error("DejaVuSans.ttf not found in the project directory. Falling back to Arial.")
+            pdf.set_font("Arial", size=12) # Fallback if font file is not found
+            pdf.add_page()
+            pdf.cell(0, 10, "Warning: DejaVuSans.ttf not found. Using Arial font. Non-ASCII characters may not display correctly.", 0, 1)
+        else:
+            pdf.add_font("DejaVu", style="", fname="DejaVuSans.ttf")
+            pdf.add_font("DejaVu", style="B", fname="DejaVuSans.ttf")
+            pdf.set_font("DejaVu", size=12) # Default to regular
+    except Exception as e:
+        # Catch any other font loading issues
+        app.logger.error(f"Error loading DejaVuSans.ttf font: {e}. Falling back to Arial.")
+        pdf.set_font("Arial", size=12)
+        pdf.add_page()
+        pdf.cell(0, 10, f"Warning: Error loading DejaVuSans.ttf: {e}. Using Arial font. Non-ASCII characters may not display correctly.", 0, 1)
+
+    # Add content to the PDF - ensure a page is added before drawing cells
+    if not pdf.page: # Check if a page has already been added by the error handling
+         pdf.add_page()
+    
+    # Use the font that was successfully set (DejaVu or Arial fallback)
+    # Be careful to use only the 'B' style if DejaVu was successfully loaded.
+    current_font_name = pdf.font_family # Get the currently active font family
+    
+    pdf.set_font(current_font_name, style='', size=12) # Set to regular for tenant name etc.
     pdf.cell(0, 10, f'Tenant Name: {entry.tenant_name}', 0, 1)
     pdf.cell(0, 10, f'Date: {entry.entry_date.strftime("%B %d, %Y")}', 0, 1)
     pdf.ln(5)
-
-    pdf.set_font('Arial', 'B', 12)
+    
+    # Set to bold for categories, if bold was added for the current font
+    if current_font_name == "DejaVu":
+        pdf.set_font("DejaVu", style='B', size=12)
+    else: # If Arial or other fallback, just use default bold if available or regular
+        pdf.set_font(current_font_name, style='B', size=12) 
+        
     pdf.cell(95, 10, 'Category', 1, 0, 'C')
     pdf.cell(95, 10, 'Amount (NPR)', 1, 1, 'C')
 
-    pdf.set_font('Arial', '', 12)
+    pdf.set_font(current_font_name, style='', size=12) # Revert to regular for data
     charges = {
-        'Rent': entry.rent,
-        'Water': entry.water,
-        'Waste Management': entry.waste,
-        'Electricity': entry.electricity,
-        'Repair Costs': entry.repair,
-        'Miscellaneous': entry.misc
+        'Rent': entry.rent, 'Water': entry.water, 'Waste Management': entry.waste,
+        'Electricity': entry.electricity, 'Repair Costs': entry.repair, 'Miscellaneous': entry.misc
     }
     for category, amount in charges.items():
         pdf.cell(95, 10, f'  {category}', 1, 0)
         pdf.cell(95, 10, f'  {amount:,.2f}', 1, 1)
-
-    pdf.set_font('Arial', 'B', 12)
+        
+    # Set to bold for total, if bold was added for the current font
+    if current_font_name == "DejaVu":
+        pdf.set_font("DejaVu", style='B', size=12)
+    else:
+        pdf.set_font(current_font_name, style='B', size=12)
+        
     pdf.cell(95, 10, '  Total Amount', 1, 0)
     pdf.cell(95, 10, f'  {entry.total:,.2f}', 1, 1)
 
-    # --- THE send_file APPROACH ---
+    # --- THE CORRECT fpdf2 + io.BytesIO + send_file APPROACH ---
     try:
-        # Create a BytesIO buffer to store the PDF output
         buffer = io.BytesIO()
-        # Output PDF content to the buffer.
-        # Use default output() which returns to dest if specified, or to 'S' (string/bytes)
-        # Some fpdf2 versions are picky, so specifying dest=buffer is crucial.
-        pdf.output(dest=buffer)
-        buffer.seek(0) # Go back to the start of the buffer
-
-        # Generate a dynamic filename
+        # This is the correct way for fpdf2 to write its content into a BytesIO buffer
+        pdf.output(dest=buffer) 
+        buffer.seek(0) # IMPORTANT: Rewind the buffer to the beginning for reading
+        
         filename = f'invoice_{entry.tenant_name}_{entry.entry_date}.pdf'
 
-        # Use send_file to return the buffer as a downloadable file
         return send_file(
             buffer,
             mimetype='application/pdf',
             as_attachment=True,
-            download_name=filename # Use download_name for modern Flask versions
+            download_name=filename,
+            last_modified=datetime.now()
         )
-
+            
     except Exception as e:
-        app.logger.error(f"Error generating PDF for entry {entry_id}: {e}")
-        return f"An error occurred while generating the PDF: {e}", 500
-
+        app.logger.error(f"Error during PDF output or send_file for entry {entry_id}: {e}")
+        return f"An error occurred during PDF generation/sending: {e}", 500
+      
 
 @app.route('/delete/<int:entry_id>', methods=['POST'])
 def delete_entry(entry_id):
