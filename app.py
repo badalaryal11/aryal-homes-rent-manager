@@ -27,9 +27,10 @@ db = SQLAlchemy(app)
 class RentEntry(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     tenant_name = db.Column(db.String(100), nullable=False)
+    month = db.Column(db.String(50), nullable=False)
     entry_date = db.Column(db.Date, nullable=False, default=datetime.utcnow)
     rent = db.Column(db.Float, nullable=False, default=0)
-    
+   
     # New: Store the count, then calculate the cost
     water_fill_count = db.Column(db.Integer, nullable=False, default=0)
     water = db.Column(db.Float, nullable=False, default=0) # This will store the CALCULATED water cost
@@ -42,7 +43,7 @@ class RentEntry(db.Model):
     
     repair = db.Column(db.Float, nullable=False, default=0)
     misc = db.Column(db.Float, nullable=False, default=0)
-
+    
     # Calculate total on the fly
     @property
     def total(self):
@@ -68,7 +69,9 @@ def index():
 
         new_entry = RentEntry(
             tenant_name=request.form['tenant_name'],
+             month = request.form['month'],
             entry_date=datetime.strptime(request.form['entry_date'], '%Y-%m-%d').date(),
+           
             rent=float(request.form.get('rent') or 0),
             
             water_fill_count=water_fill_count, # Store the count
@@ -164,8 +167,9 @@ def generate_pdf(entry_id):
 
     p.setFont(main_font, 11)
     p.drawString(1*inch, start_content_y, f"Tenant Name: {entry.tenant_name}")
-    p.drawString(1*inch, start_content_y - 0.2*inch, f"Invoice Date: {entry.entry_date.strftime('%B %d, %Y')}")
-    
+    p.drawString(1*inch, start_content_y- 0.2*inch, f"Month-Year: {entry.month}")
+    p.drawString(1*inch, start_content_y - 0.4*inch, f"Invoice Date: {entry.entry_date.strftime('%B %d, %Y')}")   
+   
     # --- The rest of the function (adjust y_position start) ---
     y_position = start_content_y - 0.7*inch # Adjusted start position for table
 

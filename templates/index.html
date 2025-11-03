@@ -35,6 +35,10 @@
                 <label for="tenant_name">Tenant Name:</label>
                 <input type="text" id="tenant_name" name="tenant_name" required>
             </div>
+            <div>
+                <label for="month">Month</label>
+                <input type="text" id="month" name="month" required>
+            </div>
              <div>
                 <label for="entry_date">Date:</label>
                 <input type="date" id="entry_date" name="entry_date" required>
@@ -70,6 +74,7 @@
                 <input type="number" id="misc" name="misc" step="0.01" placeholder="0.00">
             </div>
             
+            
             <button type="submit">Add Entry</button>
         </form>
 
@@ -79,6 +84,7 @@
                 <tr>
                     <th>Date</th>
                     <th>Tenant</th>
+                    <th>Month</th>
                     <th>Total</th>
                     <th>Actions</th>
                 </tr>
@@ -88,6 +94,7 @@
                 <tr>
                     <td>{{ entry.entry_date.strftime('%Y-%m-%d') }}</td>
                     <td>{{ entry.tenant_name }}</td>
+                    <td>{{ entry.month }}</td>
                     <td>{{ "%.2f"|format(entry.total) }}</td>
                     <td>
                 
