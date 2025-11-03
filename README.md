@@ -1,6 +1,6 @@
 # 🏠 Aryal Homes - Rent Management App
 
-![Aryal Homes Logo](static/logo.jpeg)
+
 
 A simple and robust web application built with Python and Flask to manage rent and utility payments for Aryal Homes. This app allows for detailed entry of expenses (rent, water, electricity, etc.), stores them in a database, and generates professional PDF invoices.
 
