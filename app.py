@@ -186,8 +186,8 @@ def generate_pdf(entry_id):
     # --- PDF Content Drawing ---
     
     logo_path = "static/logo.jpeg"
-    logo_height_points = 0.8 * inch # Define desired height for the logo (0.8 inches)
-    logo_width_points = 0.8 * inch # Define desired width for the logo (0.8 inches)
+    logo_height_points = 1.5 * inch # Define desired height for the logo (1.5 inches)
+    logo_width_points = 1.5 * inch # Define desired width for the logo (1.5 inches)
 
     # --- NEW: DRAW THE LOGO WITH CORRECTED POSITIONING ---
     if os.path.exists(logo_path):
