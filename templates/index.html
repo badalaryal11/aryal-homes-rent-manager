@@ -172,8 +172,27 @@
                 <input type="text" id="tenant_name" name="tenant_name" required>
             </div>
             <div>
-                <label for="month">Month</label>
-                <input type="text" id="month" name="month" required>
+                <label>Month & Year (Nepali)</label>
+                <div style="display: flex; gap: 10px;">
+                    <select name="nepali_month" required
+                        style="flex: 1; padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
+                        <option value="" disabled selected>Select Month</option>
+                        <option value="Baishakh">Baishakh</option>
+                        <option value="Jestha">Jestha</option>
+                        <option value="Ashad">Ashad</option>
+                        <option value="Shrawan">Shrawan</option>
+                        <option value="Bhadra">Bhadra</option>
+                        <option value="Ashwin">Ashwin</option>
+                        <option value="Kartik">Kartik</option>
+                        <option value="Mangsir">Mangsir</option>
+                        <option value="Poush">Poush</option>
+                        <option value="Magh">Magh</option>
+                        <option value="Falgun">Falgun</option>
+                        <option value="Chaitra">Chaitra</option>
+                    </select>
+                    <input type="number" name="nepali_year" placeholder="Year" value="2081" required
+                        style="width: 80px; padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
+                </div>
             </div>
             <div>
                 <label for="entry_date">Date:</label>

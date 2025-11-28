@@ -115,9 +115,14 @@ def index():
             units_consumed = present_reading - previous_reading
         electricity_cost = units_consumed * 13 # Price is Nrs. 13 per unit
 
+        # Combine Nepali Month and Year
+        nepali_month = request.form.get('nepali_month')
+        nepali_year = request.form.get('nepali_year')
+        month_str = f"{nepali_month} {nepali_year}"
+
         new_entry = RentEntry(
             tenant_name=request.form['tenant_name'],
-             month = request.form['month'],
+             month = month_str,
             entry_date=datetime.strptime(request.form['entry_date'], '%Y-%m-%d').date(),
            
             rent=float(request.form.get('rent') or 0),
