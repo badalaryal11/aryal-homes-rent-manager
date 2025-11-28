@@ -3,6 +3,7 @@ charset-normalizer==3.4.3
 click==8.1.8
 defusedxml==0.7.1
 Flask==3.0.3
+Flask-Login==0.6.3
 Flask-SQLAlchemy==3.1.1
 fonttools==4.59.2
 fpdf2==2.8.4

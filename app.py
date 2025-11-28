@@ -4,8 +4,11 @@ import os
 import io
 from datetime import datetime
 
-from flask import Flask, render_template, request, redirect, url_for, send_file
+from flask import Flask, render_template, request, redirect, url_for, send_file, flash
 from flask_sqlalchemy import SQLAlchemy
+from flask_login import UserMixin, LoginManager, login_user, login_required, logout_user, current_user
+from werkzeug.security import generate_password_hash, check_password_hash
+import click
 
 # --- ReportLab Imports ---
 from reportlab.pdfgen import canvas
@@ -20,9 +23,29 @@ app = Flask(__name__)
 basedir = os.path.abspath(os.path.dirname(__file__))
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + os.path.join(basedir, 'rent.db')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+app.config['SECRET_KEY'] = 'your-secret-key-change-this-in-production' # Required for session management
+
 db = SQLAlchemy(app)
+login_manager = LoginManager(app)
+login_manager.login_view = 'login' # Redirect to 'login' view if not authenticated
+
+@login_manager.user_loader
+def load_user(user_id):
+    return User.query.get(int(user_id))
 
 # --- Database Model Definition ---
+# --- Database Model Definition ---
+class User(UserMixin, db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    username = db.Column(db.String(100), unique=True, nullable=False)
+    password_hash = db.Column(db.String(200), nullable=False)
+
+    def set_password(self, password):
+        self.password_hash = generate_password_hash(password)
+
+    def check_password(self, password):
+        return check_password_hash(self.password_hash, password)
+
 # UPDATED: Changed 'water' to 'water_fill_count' and added 'water_cost'
 class RentEntry(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -53,7 +76,32 @@ class RentEntry(db.Model):
         return f'<RentEntry for {self.tenant_name}>'
 
 # --- Web Routes ---
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    if current_user.is_authenticated:
+        return redirect(url_for('index'))
+    
+    if request.method == 'POST':
+        username = request.form.get('username')
+        password = request.form.get('password')
+        user = User.query.filter_by(username=username).first()
+        
+        if user and user.check_password(password):
+            login_user(user)
+            return redirect(url_for('index'))
+        else:
+            flash('Invalid username or password')
+            
+    return render_template('login.html')
+
+@app.route('/logout')
+@login_required
+def logout():
+    logout_user()
+    return redirect(url_for('login'))
+
 @app.route('/', methods=['GET', 'POST'])
+@login_required
 def index():
     if request.method == 'POST':
         # --- UPDATED: Water Calculation Logic ---
@@ -92,6 +140,7 @@ def index():
     return render_template('index.html', entries=all_entries)
 
 @app.route('/delete/<int:entry_id>', methods=['POST'])
+@login_required
 def delete_entry(entry_id):
     entry_to_delete = RentEntry.query.get_or_404(entry_id)
     db.session.delete(entry_to_delete)
@@ -103,6 +152,7 @@ def delete_entry(entry_id):
 # ... (keep all your other imports and code) ...
 
 @app.route('/generate_pdf/<int:entry_id>')
+@login_required
 def generate_pdf(entry_id):
     entry = RentEntry.query.get_or_404(entry_id)
     
@@ -246,6 +296,24 @@ def generate_pdf(entry_id):
         as_attachment=True,
         download_name=filename
     )
+
+# --- CLI Commands ---
+@app.cli.command("create-admin")
+@click.argument("username")
+@click.argument("password")
+def create_admin(username, password):
+    """Creates a new admin user."""
+    with app.app_context():
+        db.create_all() # Ensure tables exist
+        if User.query.filter_by(username=username).first():
+            print(f"User {username} already exists.")
+            return
+        
+        new_user = User(username=username)
+        new_user.set_password(password)
+        db.session.add(new_user)
+        db.session.commit()
+        print(f"Admin user {username} created successfully!")
 
 # --- Main Execution ---
 if __name__ == '__main__':
