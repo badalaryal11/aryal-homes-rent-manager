@@ -115,6 +115,20 @@
             color: red;
         }
 
+        .logout-btn {
+            background-color: #6c757d;
+            color: white;
+            padding: 5px 10px;
+            border-radius: 4px;
+            text-decoration: none;
+            font-size: 14px;
+            float: right;
+        }
+
+        .logout-btn:hover {
+            background-color: #5a6268;
+        }
+
         /* Mobile Responsiveness */
         @media (max-width: 600px) {
             form {
@@ -145,6 +159,7 @@
 
 <body>
     <div class="container">
+        <a href="{{ url_for('logout') }}" class="logout-btn">Logout</a>
         <img src="{{ url_for('static', filename='logo.jpeg') }}" alt="Aryal Homes Logo"
             style="width: 100px; display: block; margin: 0 auto 15px;">
 
