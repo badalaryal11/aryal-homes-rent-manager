@@ -1,36 +1,156 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aryal Homes Rent Management</title>
+    <link rel="icon" href="{{ url_for('static', filename='logo.jpeg') }}" type="image/jpeg">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f4f4f9;
+        }
+
+        h1,
+        h2 {
+            color: #333;
+            text-align: center;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        form {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        label {
+            font-weight: bold;
+        }
+
+        input {
+            width: 100%;
+            padding: 8px;
+            box-sizing: border-box;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        button {
+            grid-column: span 2;
+            padding: 10px;
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        th,
+        td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #f2f2f2;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+
+        a {
+            color: #007BFF;
+            text-decoration: none;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+
+        .delete-btn {
+            background-color: #dc3545;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .summary-info {
+            font-size: 0.9em;
+            color: #555;
+            margin-top: 5px;
+            background-color: #e9ecef;
+            padding: 5px;
+            border-radius: 4px;
+        }
+
+        .summary-info.error {
+            color: red;
+        }
+
+        /* Mobile Responsiveness */
+        @media (max-width: 600px) {
+            form {
+                grid-template-columns: 1fr;
+            }
+
+            button {
+                grid-column: span 1;
+            }
+
+            .container {
+                padding: 10px;
+                width: 100%;
+            }
+
+            body {
+                margin: 10px;
+            }
+
+            table {
+                display: block;
+                overflow-x: auto;
+                white-space: nowrap;
+            }
+        }
+    </style>
+</head>
+
+<body>
     <div class="container">
-        <link rel="icon" href="{{ url_for('static', filename='logo.jpeg') }}" type="image/jpeg">
-        <img src="{{ url_for('static', filename='logo.jpeg') }}" alt="Aryal Homes Logo" style="width: 100px; display: block; margin: 0 auto 15px;">
-        
+        <img src="{{ url_for('static', filename='logo.jpeg') }}" alt="Aryal Homes Logo"
+            style="width: 100px; display: block; margin: 0 auto 15px;">
+
         <h1>Aryal Homes Rent Management</h1>
 
         <h2>Add New Entry</h2>
-        ```
-    <style>
-        body { font-family: Arial, sans-serif; margin: 20px; background-color: #f4f4f9; }
-        h1, h2 { color: #333; text-align: center; }
-        .container { max-width: 900px; margin: auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
-        form { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 30px; }
-        label { font-weight: bold; }
-        input { width: 100%; padding: 8px; box-sizing: border-box; border: 1px solid #ccc; border-radius: 4px; }
-        button { grid-column: span 2; padding: 10px; background-color: #007BFF; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 16px; }
-        button:hover { background-color: #0056b3; }
-        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
-        th { background-color: #f2f2f2; }
-        tr:nth-child(even) { background-color: #f9f9f9; }
-        a { color: #007BFF; text-decoration: none; }
-        a:hover { text-decoration: underline; }
-        .delete-btn { background-color: #dc3545; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; font-size: 14px; }
-        .summary-info { font-size: 0.9em; color: #555; margin-top: 5px; background-color: #e9ecef; padding: 5px; border-radius: 4px;}
-        .summary-info.error { color: red; }
-    </style>
-</head>
-<body>
-    
         <form action="/" method="POST">
             <div>
                 <label for="tenant_name">Tenant Name:</label>
@@ -40,7 +160,7 @@
                 <label for="month">Month</label>
                 <input type="text" id="month" name="month" required>
             </div>
-             <div>
+            <div>
                 <label for="entry_date">Date:</label>
                 <input type="date" id="entry_date" name="entry_date" required>
             </div>
@@ -50,16 +170,19 @@
             </div>
             <div>
                 <label for="water_fill_count">Water Fill Count (@ NRS 250/fill):</label>
-                <input type="number" id="water_fill_count" name="water_fill_count" step="1" min="0" value="0" oninput="calculateWater()">
+                <input type="number" id="water_fill_count" name="water_fill_count" step="1" min="0" value="0"
+                    oninput="calculateWater()">
                 <div id="water-summary" class="summary-info">Cost: NRS 0.00</div>
             </div>
             <div>
                 <label for="electricity_previous_reading">Previous Electricity Reading:</label>
-                <input type="number" id="electricity_previous_reading" name="electricity_previous_reading" step="0.01" placeholder="0.00" oninput="calculateElectricity()">
+                <input type="number" id="electricity_previous_reading" name="electricity_previous_reading" step="0.01"
+                    placeholder="0.00" oninput="calculateElectricity()">
             </div>
             <div>
                 <label for="electricity_present_reading">Present Electricity Reading:</label>
-                <input type="number" id="electricity_present_reading" name="electricity_present_reading" step="0.01" placeholder="0.00" oninput="calculateElectricity()">
+                <input type="number" id="electricity_present_reading" name="electricity_present_reading" step="0.01"
+                    placeholder="0.00" oninput="calculateElectricity()">
                 <div id="electricity-summary" class="summary-info">Units: 0.00 | Cost: NRS 0.00</div>
             </div>
             <div>
@@ -74,8 +197,8 @@
                 <label for="misc">Miscellaneous:</label>
                 <input type="number" id="misc" name="misc" step="0.01" placeholder="0.00">
             </div>
-            
-            
+
+
             <button type="submit">Add Entry</button>
         </form>
 
@@ -98,15 +221,18 @@
                     <td>{{ entry.month }}</td>
                     <td>{{ "%.2f"|format(entry.total) }}</td>
                     <td>
-                
-                     <a href="{{ url_for('generate_pdf', entry_id=entry.id) }}">Generate PDF</a>
+
+                        <a href="{{ url_for('generate_pdf', entry_id=entry.id) }}">Generate PDF</a>
                         &nbsp;&nbsp;|&nbsp;&nbsp;
-                        <form action="{{ url_for('delete_entry', entry_id=entry.id) }}" method="POST" style="display:inline;">
-                            <button type="submit" onclick="return confirm('Are you sure you want to delete this entry?');" class="delete-btn">
+                        <form action="{{ url_for('delete_entry', entry_id=entry.id) }}" method="POST"
+                            style="display:inline;">
+                            <button type="submit"
+                                onclick="return confirm('Are you sure you want to delete this entry?');"
+                                class="delete-btn">
                                 Delete
                             </button>
                         </form>
-                    
+
                     </td>
                 </tr>
                 {% endfor %}
@@ -156,4 +282,5 @@
         });
     </script>
 </body>
+
 </html>
