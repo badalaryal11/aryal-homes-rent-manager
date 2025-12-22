@@ -20,6 +20,16 @@ A simple and robust web application built with Python and Flask to manage rent a
 
 ---
 
+## 📸 Screenshots
+
+### Admin Login
+![Admin Login](static/screenshots/admin_login.png)
+
+### Dashboard - Add New Entry
+![Dashboard](static/screenshots/dashboard.png)
+
+---
+
 ## 🛠 Tech Stack
 
 * **Backend**: Python
