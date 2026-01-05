@@ -289,6 +289,25 @@ def generate_pdf(entry_id):
     p.drawString(table_left_margin, y_position, "Total Amount Due")
     p.drawRightString(table_right_margin, y_position, f"{entry.total:,.2f}")
 
+    # --- Authorized Signature ---
+    y_position -= 0.6 * inch
+    signature_path = "static/signature.png"
+    
+    # Define signature box
+    sig_width = 1.5 * inch
+    sig_height = 0.8 * inch
+    
+    # Position: Right aligned to the table margin
+    sig_x = table_right_margin - sig_width
+    sig_y = y_position - sig_height
+    
+    if os.path.exists(signature_path):
+        p.drawImage(signature_path, sig_x, sig_y, width=sig_width, height=sig_height, mask='auto', preserveAspectRatio=True)
+    
+    # Draw 'Authorized Signature' text below the image area
+    p.setFont(main_font, 10)
+    p.drawCentredString(sig_x + sig_width/2.0, sig_y - 0.2*inch, "Authorized Signature")
+
     p.showPage()
     p.save()
     buffer.seek(0)
