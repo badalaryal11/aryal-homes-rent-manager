@@ -106,7 +106,7 @@ def index():
     if request.method == 'POST':
         # --- UPDATED: Water Calculation Logic ---
         water_fill_count = int(request.form.get('water_fill_count') or 0)
-        water_cost = water_fill_count * 250 # Price is Nrs. 250 per fill
+        water_cost = water_fill_count * 300 # Price is Nrs. 300 per fill
 
         previous_reading = float(request.form.get('electricity_previous_reading') or 0)
         present_reading = float(request.form.get('electricity_present_reading') or 0)

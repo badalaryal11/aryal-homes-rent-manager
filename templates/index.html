@@ -203,7 +203,7 @@
                 <input type="number" id="rent" name="rent" step="0.01" placeholder="0.00">
             </div>
             <div>
-                <label for="water_fill_count">Water Fill Count (@ NRS 250/fill):</label>
+                <label for="water_fill_count">Water Fill Count (@ NRS 300/fill):</label>
                 <input type="number" id="water_fill_count" name="water_fill_count" step="1" min="0" value="0"
                     oninput="calculateWater()">
                 <div id="water-summary" class="summary-info">Cost: NRS 0.00</div>
@@ -275,7 +275,7 @@
     </div>
 
     <script>
-        const WATER_PRICE_PER_FILL = 250;
+        const WATER_PRICE_PER_FILL = 300;
         const ELECTRICITY_PRICE_PER_UNIT = 13;
 
         function calculateWater() {
