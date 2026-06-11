@@ -11,7 +11,7 @@ A simple and robust web application built with Python and Flask to manage rent a
 * **Full CRUD Functionality**: Create, Read, and Delete rent entries.
 * **Detailed Expense Categories**: Track Rent, Waste, Repair, and Miscellaneous costs.
 * **Smart Utility Calculation**:
-    * **💧 Water**: Automatically calculates the total cost based on the number of tanker fills (`@ NRS 250/fill`).
+    * **💧 Water**: Automatically calculates the total cost based on the number of tanker fills (`@ NRS 300/fill`).
     * **⚡️ Electricity**: Automatically calculates units consumed and total cost based on previous and present meter readings (`@ NRS 13/unit`).
 * **Persistent Database**: All entries are saved to a production-ready SQLite database using `Flask-SQLAlchemy`.
 * **Detailed View**: A dedicated page to view a full, itemized breakdown of any entry before generating a PDF.

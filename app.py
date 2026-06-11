@@ -249,7 +249,7 @@ def generate_pdf(entry_id):
     p.drawString(table_left_margin, y_position, "Water Details")
     y_position -= 0.25*inch
     p.setFont(main_font, 10)
-    p.drawString(table_left_margin + 0.2*inch, y_position, f"Times Filled: {entry.water_fill_count} @ NRS 250.00/fill")
+    p.drawString(table_left_margin + 0.2*inch, y_position, f"Times Filled: {entry.water_fill_count} @ NRS 300.00/fill")
     y_position -= 0.25*inch
     p.setFont(main_font, 11)
     p.drawString(table_left_margin, y_position, "Water Cost")
